@@ -14,11 +14,11 @@ on:
       # * * * * *
     - cron: '0 0 * * 1'  # build every Monday
   push:
-    branches: [ master, dev ]
+    branches: [ main, dev ]
     tags:
       - '*.*.*'
   pull_request:
-    branches: [ master ]
+    branches: [ main ]
 
 
 jobs:
@@ -27,7 +27,7 @@ jobs:
 
     runs-on: ubuntu-latest
     env:
-      IMAGE_NAME: mingc/android-build-box
+      IMAGE_NAME: sampingan/android
 
     steps:
     - uses: actions/checkout@v2
@@ -36,10 +36,10 @@ jobs:
       id: meta
       uses: docker/metadata-action@v3
       with:
-        images: mingc/android-build-box
+        images: sampingan/android
         labels: |
-          org.opencontainers.image.url=https://hub.docker.com/r/mingc/android-build-box
-          org.opencontainers.image.vendor=Ming Chen
+          org.opencontainers.image.url=https://hub.docker.com/r/sampingan/android
+          org.opencontainers.image.vendor=Sampingan Tech
 
     - name: Set up QEMU
       uses: docker/setup-qemu-action@v1
@@ -135,5 +135,5 @@ jobs:
         # platforms: linux/arm64
         # push: ${{ github.event_name != 'pull_request' && github.ref == 'refs/heads/master' }}
         push: ${{ github.event_name != 'pull_request' && (github.ref == 'refs/heads/master' || contains(github.ref, 'refs/tags/')) }}
-        tags: mingc/android-build-box:latest,${{ steps.meta.outputs.tags }}
+        tags: sampingan/android:latest,${{ steps.meta.outputs.tags }}
         labels: ${{ steps.meta.outputs.labels }}
