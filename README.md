@@ -35,7 +35,6 @@ It includes the following components:
   * 31.0.0
 * Android Emulator
 * TestNG
-* Python 2, Python 3
 * Ruby, RubyGems
 * fastlane
 * Kotlin 1.5
@@ -186,6 +185,16 @@ to avoid breaking your build. For example `sampingan/android:1.22.0`
 Android Platform version available. This generated large Docker images, around 5 GB.
 Newer versions of `android` only include a subset of the newest Android Tools,
 so the Docker images are smaller.
+
+## 2.0.0
+
+BREAKING CHANGES
+
+* We remove most of unused dependencies (as we didn't use it currently) to speed up Docker build
+* Remove Flutter
+* Remove NodeJS & React Native
+* Remove Python (seems never exist previously in the author repo?)
+* Remove NDK
 
 ## 1.23.1
 
