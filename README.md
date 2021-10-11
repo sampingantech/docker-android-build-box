@@ -351,7 +351,7 @@ BREAKING CHANGES
 ## Contribution
 
 If you want to enhance this docker image or fix something,
-feel free to send [pull request](https://github.com/sampingantech/docker-android-build-box/pull/new/master).
+feel free to send [pull request](https://github.com/sampingantech/docker-android-build-box/pull/new/main).
 
 
 ## References
