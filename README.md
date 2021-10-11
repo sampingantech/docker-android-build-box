@@ -5,7 +5,7 @@
 
 ## Introduction
 
-An optimized **docker** image includes **Android**, **Kotlin**, **Flutter sdk**.
+An optimized **docker** image includes **Android** & **Kotlin SDK**.
 
 Weekly image build to get the latest base image and updated packages.
 
@@ -41,7 +41,6 @@ It includes the following components:
 * Ruby, RubyGems
 * fastlane
 * Kotlin 1.5
-* Flutter 2.5.1
 * jenv
 * Gradle 7.2
 

@@ -4,7 +4,6 @@ RUN uname -a && uname -m
 
 ENV ANDROID_HOME="/opt/android-sdk" \
     ANDROID_NDK="/opt/android-sdk/ndk/current" \
-    FLUTTER_HOME="/opt/flutter"
 
 # support amd64 and arm64
 RUN JDK_PLATFORM=$(if [ "$(uname -m)" = "aarch64" ]; then echo "arm64"; else echo "amd64"; fi) && \
@@ -39,7 +38,7 @@ ENV DEBIAN_FRONTEND="noninteractive" \
 ENV ANDROID_SDK_HOME="$ANDROID_HOME"
 ENV ANDROID_NDK_HOME="$ANDROID_NDK"
 
-ENV PATH="$JAVA_HOME/bin:$PATH:$ANDROID_SDK_HOME/emulator:$ANDROID_SDK_HOME/tools/bin:$ANDROID_SDK_HOME/tools:$ANDROID_SDK_HOME/platform-tools:$ANDROID_NDK:$FLUTTER_HOME/bin:$FLUTTER_HOME/bin/cache/dart-sdk/bin"
+ENV PATH="$JAVA_HOME/bin:$PATH:$ANDROID_SDK_HOME/emulator:$ANDROID_SDK_HOME/tools/bin:$ANDROID_SDK_HOME/tools:$ANDROID_SDK_HOME/platform-tools:$ANDROID_NDK"
 
 WORKDIR /tmp
 
@@ -194,14 +193,6 @@ RUN echo "kotlin & gradle" && \
     wget --quiet -O sdk.install.sh "https://get.sdkman.io" && \
     bash -c "bash ./sdk.install.sh > /dev/null && source ~/.sdkman/bin/sdkman-init.sh && sdk install kotlin && sdk install gradle 7.2" && \
     rm -f sdk.install.sh
-
-RUN echo "Flutter sdk" && \
-    if [ "$(uname -m)" != "x86_64" ]; then echo "Flutter only support Linux x86 64bit. skip for $(uname -m)"; exit 0; fi && \
-    cd /opt && \
-    wget --quiet https://storage.googleapis.com/flutter_infra_release/releases/stable/linux/flutter_linux_2.5.1-stable.tar.xz -O flutter.tar.xz && \
-    tar xf flutter.tar.xz && \
-    flutter config --no-analytics && \
-    rm -f flutter.tar.xz
 
 # Copy sdk license agreement files.
 RUN mkdir -p $ANDROID_HOME/licenses

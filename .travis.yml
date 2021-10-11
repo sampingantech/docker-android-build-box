@@ -18,7 +18,7 @@ before_install:
   - travis_wait 50 ./hooks/build
 
 script:
-  - docker run -it --rm $IMAGE_NAME flutter --version
+  - docker run -it --rm $IMAGE_NAME gradle --version
 
 after_script:
   - ./hooks/post_build
