@@ -2,8 +2,7 @@ FROM ubuntu:20.04
 
 RUN uname -a && uname -m
 
-ENV ANDROID_HOME="/opt/android-sdk" \
-    ANDROID_NDK="/opt/android-sdk/ndk/current" \
+ENV ANDROID_HOME="/opt/android-sdk"
 
 # support amd64 and arm64
 RUN JDK_PLATFORM=$(if [ "$(uname -m)" = "aarch64" ]; then echo "arm64"; else echo "amd64"; fi) && \
@@ -33,9 +32,8 @@ ENV DEBIAN_FRONTEND="noninteractive" \
 
 # Variables must be references after they are created
 ENV ANDROID_SDK_HOME="$ANDROID_HOME"
-ENV ANDROID_NDK_HOME="$ANDROID_NDK"
 
-ENV PATH="$JAVA_HOME/bin:$PATH:$ANDROID_SDK_HOME/emulator:$ANDROID_SDK_HOME/tools/bin:$ANDROID_SDK_HOME/tools:$ANDROID_SDK_HOME/platform-tools:$ANDROID_NDK"
+ENV PATH="$JAVA_HOME/bin:$PATH:$ANDROID_SDK_HOME/emulator:$ANDROID_SDK_HOME/tools/bin:$ANDROID_SDK_HOME/tools:$ANDROID_SDK_HOME/platform-tools"
 
 WORKDIR /tmp
 
@@ -143,22 +141,8 @@ RUN echo "emulator" && \
     . /etc/jdk.env && \
     yes | "$ANDROID_HOME"/tools/bin/sdkmanager "emulator" > /dev/null
 
-# ndk-bundle does exist on arm64
-# RUN echo "NDK" && \
-#     yes | "$ANDROID_HOME"/tools/bin/sdkmanager "ndk-bundle" > /dev/null
-
-RUN echo "NDK" && \
-    NDK=$(grep 'ndk;' packages.txt | sort | tail -n1 | awk '{print $1}') && \
-    NDK_VERSION=$(echo $NDK | awk -F\; '{print $2}') && \
-    echo "Installing $NDK" && \
-    . /etc/jdk.env && \
-    yes | "$ANDROID_HOME"/tools/bin/sdkmanager "$NDK" > /dev/null && \
-    ln -sv $ANDROID_HOME/ndk/${NDK_VERSION} ${ANDROID_NDK}
-
-# List sdk and ndk directory content
-RUN ls -l $ANDROID_HOME && \
-    ls -l $ANDROID_HOME/ndk && \
-    ls -l $ANDROID_HOME/ndk/*
+# List sdk directory content
+RUN ls -l $ANDROID_HOME
 
 RUN du -sh $ANDROID_HOME
 

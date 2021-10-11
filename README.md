@@ -33,7 +33,6 @@ It includes the following components:
   * 29.0.2 29.0.3
   * 30.0.0 30.0.2 30.0.3
   * 31.0.0
-* Android NDK (always the latest version, side by side install)
 * Android Emulator
 * TestNG
 * Python 2, Python 3
