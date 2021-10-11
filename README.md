@@ -37,7 +37,6 @@ It includes the following components:
 * Android Emulator
 * TestNG
 * Python 2, Python 3
-* Node.js 14, npm, React Native
 * Ruby, RubyGems
 * fastlane
 * Kotlin 1.5
