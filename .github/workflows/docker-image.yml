@@ -14,7 +14,7 @@ on:
       # * * * * *
     - cron: '0 0 * * 1'  # build every Monday
   push:
-    branches: [ master, dev ]
+    branches: [ main, dev ]
     tags:
       - '*.*.*'
     paths-ignore:
@@ -22,11 +22,7 @@ on:
       - 'howto.txt'
       - 'LICENSE'
   pull_request:
-    branches: [ master ]
-    paths-ignore:
-      - '*.md'
-      - 'howto.txt'
-      - 'LICENSE'
+    branches: [ main ]
 
 
 jobs:
@@ -35,8 +31,7 @@ jobs:
 
     runs-on: ubuntu-latest
     env:
-      IMAGE_NAME: mingc/android-build-box
-      TAG: $GITHUB_SHA
+      IMAGE_NAME: sampingan/android
 
     steps:
     - uses: actions/checkout@0ad4b8fadaa221de15dcec353f45205ec38ea70b
@@ -45,10 +40,10 @@ jobs:
       id: meta
       uses: docker/metadata-action@8e5442c4ef9f78752691e2d8f8d19755c6f78e81
       with:
-        images: mingc/android-build-box
+        images: sampingan/android
         labels: |
-          org.opencontainers.image.url=https://hub.docker.com/r/mingc/android-build-box
-          org.opencontainers.image.vendor=Ming Chen
+          org.opencontainers.image.url=https://hub.docker.com/r/sampingan/android
+          org.opencontainers.image.vendor=Sampingan Tech
 
     - name: Set up QEMU
       uses: docker/setup-qemu-action@68827325e0b33c7199eb31dd4e31fbe9023e06e3
@@ -150,6 +145,7 @@ jobs:
         echo "Test jenv recognizes Java 17"
         docker run --rm ${{ env.IMAGE_NAME}}:${{ env.TAG}} bash -c 'jenv local 17 && java -version'
 
+        docker run -v `pwd`:/project --rm $IMAGE_NAME:$TAG bash -c 'echo "Current directory: $PWD"'
         docker run -v `pwd`:/project --rm ${{ env.IMAGE_NAME}}:${{ env.TAG}} bash -c 'echo "Current directory: $PWD"'
 
         docker run --rm ${{ env.IMAGE_NAME}}:${{ env.TAG}} bash -c 'ls -l $ANDROID_SDK_HOME'
@@ -164,8 +160,8 @@ jobs:
         docker run --rm -v `pwd`:/project ${{ env.IMAGE_NAME}}:${{ env.TAG}} bash -c './gradlew build'
 
     - name: Login to DockerHub
-      # if: github.event_name != 'pull_request' && github.ref == 'refs/heads/master'
-      if: github.event_name != 'pull_request' && (github.ref == 'refs/heads/master' || startsWith(github.ref, 'refs/tags/'))
+      # if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
+      if: github.event_name != 'pull_request' && (github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/'))
       uses: docker/login-action@e92390c5fb421da1463c202d546fed0ec5c39f20
       with:
         username: ${{ secrets.DOCKERHUB_USERNAME }}
@@ -177,7 +173,7 @@ jobs:
       with:
         context: .
         platforms: linux/amd64
-        push: ${{ startsWith(github.ref, 'refs/heads/master') }}
+        push: ${{ startsWith(github.ref, 'refs/heads/main') }}
         tags: mingc/android-build-box:latest, ${{ steps.meta.outputs.tags }}
         labels: ${{ steps.meta.outputs.labels }}
 

@@ -61,6 +61,7 @@ ENV ANDROID_HOME="/opt/android-sdk" \
     JENV_ROOT="/opt/jenv"
 ENV ANDROID_SDK_MANAGER=${ANDROID_HOME}/cmdline-tools/latest/bin/sdkmanager
 
+RUN uname -a && uname -m
 ENV TZ=America/Los_Angeles
 
 # Set locale
@@ -70,7 +71,6 @@ ENV LANG="en_US.UTF-8" \
 
 # Variables must be references after they are created
 ENV ANDROID_SDK_HOME="$ANDROID_HOME"
-ENV ANDROID_NDK_HOME="$ANDROID_NDK"
 
 ENV PATH="${JENV_ROOT}/shims:${JENV_ROOT}/bin:$JAVA_HOME/bin:$PATH:$ANDROID_SDK_HOME/emulator:$ANDROID_SDK_HOME/cmdline-tools/latest/bin:$ANDROID_SDK_HOME/tools:$ANDROID_SDK_HOME/platform-tools:$ANDROID_NDK:$FLUTTER_HOME/bin:$FLUTTER_HOME/bin/cache/dart-sdk/bin"
 
@@ -151,9 +151,12 @@ RUN apt-get update -qq > /dev/null && \
 FROM pre-base as base-base
 RUN echo '# Installed Versions of Specified Software' >> ${INSTALLED_VERSIONS}
 
+# Install Android SDK
 FROM base-base as base-tagged
 RUN echo "sdk tools ${ANDROID_SDK_TOOLS_VERSION}" && \
     wget --quiet --output-document=sdk-tools.zip \
+        "https://dl.google.com/android/repository/sdk-tools-linux-${ANDROID_SDK_TOOLS_VERSION}.zip" && \
+    mkdir --parents "$ANDROID_HOME" && \
         "https://dl.google.com/android/repository/commandlinetools-linux-${ANDROID_SDK_TOOLS_VERSION}_latest.zip" && \
     echo "ANDROID_SDK_TOOLS_VERSION=${ANDROID_SDK_TOOLS_VERSION}" >> ${INSTALLED_VERSIONS}
 
@@ -168,12 +171,15 @@ RUN TEMP=$(curl -S https://developer.android.com/studio/index.html) && \
 FROM base-${ANDROID_SDK_TOOLS_TAGGED} as base
 RUN mkdir --parents "$ANDROID_HOME" && \
     unzip -q sdk-tools.zip -d "$ANDROID_HOME" && \
+    rm --force sdk-tools.zip
     cd "$ANDROID_HOME" && \
     mv cmdline-tools latest && \
     mkdir cmdline-tools && \
     mv latest cmdline-tools && \
     rm --force ${DIRWORK}/sdk-tools.zip
 
+# Install SDKs
+# Please keep these in descending order!
 # Copy sdk license agreement files.
 RUN mkdir -p $ANDROID_HOME/licenses
 COPY sdk/licenses/* $ANDROID_HOME/licenses/
@@ -232,11 +238,15 @@ RUN mkdir --parents "$ANDROID_HOME/.android/" && \
     echo '### User Sources for Android SDK Manager' > \
         "$ANDROID_HOME/.android/repositories.cfg" && \
     . /etc/jdk.env && \
+    yes | "$ANDROID_HOME"/tools/bin/sdkmanager --licenses > /dev/null
     yes | $ANDROID_SDK_MANAGER --licenses > /dev/null
 
 # List all available packages.
+# redirect to a temp file `packages.txt` for later use and avoid show progress
 # redirect to a temp file ${SDK_PACKAGES_LIST} for later use and avoid show progress
 RUN . /etc/jdk.env && \
+    "$ANDROID_HOME"/tools/bin/sdkmanager --list > packages.txt && \
+    cat packages.txt | grep -v '='
     $ANDROID_SDK_MANAGER --list > ${SDK_PACKAGES_LIST} && \
     cat ${SDK_PACKAGES_LIST} | grep -v '='
 
@@ -251,6 +261,8 @@ RUN echo "platform tools" && \
 # installs the intended android SDKs
 #
 # https://developer.android.com/studio/command-line/sdkmanager.html
+#
+RUN echo "platforms" && \
 FROM pre-minimal as stage1-independent-base
 WORKDIR ${DIRWORK}
 ARG PACKAGES_FILENAME="android-sdks.txt"
@@ -258,6 +270,14 @@ ARG PACKAGES_FILENAME="android-sdks.txt"
 FROM --platform=linux/amd64 stage1-independent-base as stage1-base
 RUN echo "emulator" && \
     . /etc/jdk.env && \
+    yes | "$ANDROID_HOME"/tools/bin/sdkmanager \
+        "platforms;android-31" \
+        "platforms;android-30" \
+        "platforms;android-29" \
+        "platforms;android-28" \
+        "platforms;android-27" \
+        "platforms;android-26" \
+        "platforms;android-25" > /dev/null
     yes | $ANDROID_SDK_MANAGER "emulator" > /dev/null
 
 FROM --platform=linux/arm64 stage1-independent-base as stage1-base
@@ -498,11 +518,11 @@ RUN git config --global --add safe.directory ${FLUTTER_HOME} && \
     rm -rf ${DIRWORK}/*
 
 # labels, see http://label-schema.org/
-LABEL maintainer="Ming Chen"
+LABEL maintainer="Mochamad Iqbal Dwi Cahyo"
 LABEL org.label-schema.schema-version="1.0"
-LABEL org.label-schema.name="mingc/android-build-box"
+LABEL org.label-schema.name="sampingan/android"
 LABEL org.label-schema.version="${DOCKER_TAG}"
 LABEL org.label-schema.usage="/README.md"
-LABEL org.label-schema.docker.cmd="docker run --rm -v `pwd`:${FINAL_DIRWORK} mingc/android-build-box bash -c './gradlew build'"
+LABEL org.label-schema.docker.cmd="docker run --rm -v `pwd`:/project sampingan/android bash -c 'cd /project; ./gradlew build'"
 LABEL org.label-schema.build-date="${BUILD_DATE}"
 LABEL org.label-schema.vcs-ref="${SOURCE_COMMIT}@${SOURCE_BRANCH}"

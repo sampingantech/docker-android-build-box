@@ -1,11 +1,13 @@
 # Docker Android Build Box
 
-[![docker icon](https://dockeri.co/image/mingc/android-build-box)](https://hub.docker.com/r/mingc/android-build-box/)
-[![Docker Image CI](https://github.com/mingchen/docker-android-build-box/actions/workflows/docker-image.yml/badge.svg)](https://github.com/mingchen/docker-android-build-box/actions/workflows/docker-image.yml)
+[![docker icon](https://dockeri.co/image/sampingan/android)](https://hub.docker.com/r/sampingan/android/)
+[![Docker Image CI](https://github.com/sampingantech/docker-android-build-box/actions/workflows/docker-image.yml/badge.svg)](https://github.com/sampingantech/docker-android-build-box/actions/workflows/docker-image.yml)
 
 ## Introduction
 
-An optimized **Docker** image that includes the **Android SDK** and **Flutter SDK**.
+An optimized **docker** image includes **Android** & **Kotlin SDK**.
+
+Weekly image build to get the latest base image and updated packages.
 
 ## What Is Inside
 
@@ -51,17 +53,16 @@ The last **tagged** release includes the following components:
 
 ## Pull Docker Image
 
-The docker image is automatically built publicly on *Github Action* based on the `Dockerfile` in this repo, there is no hidden stuff in it.
-
-To pull the latest docker image:
+The docker image is publicly automated build on [Docker Hub](https://hub.docker.com/r/sampingan/android/)
+based on the Dockerfile in this repo, so there is no hidden stuff in it. To pull the latest docker image:
 
 ```sh
-docker pull mingc/android-build-box:latest
+docker pull sampingan/android:latest
 ```
 
 **Hint:** You can use a tag to a specific stable version,
 rather than `latest` of docker image, to avoid breaking your build.
-e.g. `mingc/android-build-box:1.25.0`.
+e.g. `sampingan/android:1.22.0`.
 
 Take a look at the [**Tags List**](https://github.com/mingchen/docker-android-build-box/tags) to see all the available tags, the [Changelog](CHANGELOG.md) to see the changes between tags, and the [Compatibility Matrices](COMPATIBILITY.md) to see matrices of the various software available, that is tag `1.2.0` has SDKs x, y, and z... etc.
 
@@ -75,20 +76,20 @@ You can use this docker image to build your Android project with a single docker
 
 ```sh
 cd <android project directory>  # change working directory to your project root directory.
-docker run --rm -v `pwd`:/project mingc/android-build-box bash -c 'cd /project; ./gradlew build'
+docker run --rm -v `pwd`:/project sampingan/android bash -c 'cd /project; ./gradlew build'
 ```
 
 To build `.aab` bundle release, use `./gradlew bundleRelease`:
 
 ```sh
 cd <android project directory>  # change working directory to your project root directory.
-docker run --rm -v `pwd`:/project mingc/android-build-box bash -c 'cd /project; ./gradlew bundleRelease'
+docker run --rm -v `pwd`:/project sampingan/android bash -c 'cd /project; ./gradlew bundleRelease'
 ```
 
 Run docker image with interactive bash shell:
 
 ```sh
-docker run -v `pwd`:/project -it mingc/android-build-box bash -l
+docker run -v `pwd`:/project -it sampingan/android bash
 ```
 
 ### Caches
@@ -126,7 +127,7 @@ Add the following arguments to the docker command to cache the home gradle folde
 ```
 e.g.
 ```sh
-docker run --rm -v `pwd`:/project  -v "$HOME/.dockercache/gradle":"/root/.gradle"   mingc/android-build-box bash -c 'cd /project; ./gradlew build'
+docker run --rm -v `pwd`:/project  -v "$HOME/.dockercache/gradle":"/root/.gradle"   sampingan/android bash -c 'cd /project; ./gradlew build'
 ```
 
 The final step is to turn caching on by adding:
@@ -210,7 +211,7 @@ you can simply specify this docker image.
 Here is an example of `bitbucket-pipelines.yml`:
 
 ```yml
-image: mingc/android-build-box:latest
+image: sampingan/android:latest
 
 pipelines:
   default:
@@ -389,7 +390,7 @@ Docker buildx is used so at a minimum Docker Engine version 19.03 or later is re
 If you want to build the docker image by yourself, you can use following command.
 
 ```sh
-docker buildx build -t android-build-box .
+docker build -t android .
 ```
 
 There are three build targets. The default is `complete-flutter`. The other two targets available are `minimal` and `complete`.
@@ -422,7 +423,7 @@ Please see the compatibility matrices [here](COMPATIBILITY.md).
 ## Contribution
 
 If you want to enhance this docker image or fix something,
-feel free to send a [pull request](https://github.com/mingchen/docker-android-build-box/pull/new/master).
+feel free to send [pull request](https://github.com/sampingantech/docker-android-build-box/pull/new/main).
 
 Please also preface commits with `DOCS:` when editing any documentation and `CI:` when editing `.github/workflows/`.
 
