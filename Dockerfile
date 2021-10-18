@@ -183,6 +183,16 @@ RUN git clone https://github.com/jenv/jenv.git ~/.jenv && \
     jenv versions && \
     jenv global 11 && \
     java -version
+    
+# Create new jenkins user
+USER root
+RUN adduser --gecos "" --disabled-password --quiet jenkins
+RUN echo "jenkins:jenkins" | chpasswd
+
+# Add `jenkins` user
+RUN chown -R jenkins:jenkins ${ANDROID_HOME}
+RUN chown -R jenkins:jenkins ${ANDROID_SDK_HOME}
+USER jenkins
 
 COPY README.md /README.md
 
