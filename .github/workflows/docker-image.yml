@@ -83,7 +83,12 @@ jobs:
         TAG=$GITHUB_SHA
         docker build . \
             --file Dockerfile \
-            --tag $IMAGE_NAME:$TAG
+            --tag $IMAGE_NAME:$TAG \
+            # TODO: find alternative instead of building image in Jenkins
+            # This will only add new user in the Github
+            # Unable to map with host user in our Jenkins (unless runs on the Jenkins)
+            --build-arg USER_ID=$(id -u) \
+            --build-arg GROUP_ID=$(id -g)
 
     - name: Inspect local docker image
       run: |
