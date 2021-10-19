@@ -155,20 +155,19 @@ RUN echo "kotlin & gradle" && \
 RUN mkdir -p $ANDROID_HOME/licenses
 COPY sdk/licenses/* $ANDROID_HOME/licenses/
 
+ENV JENKINS_DEFAULT_ID=1000
+
+# Create new (Jenkins Users)
+RUN addgroup --gid $JENKINS_DEFAULT_ID jenkins
+RUN adduser --disabled-password --gecos '' --uid $JENKINS_DEFAULT_ID --gid $JENKINS_DEFAULT_ID jenkins
+USER jenkins
+
 # Create some jenkins required directory to allow this image run with Jenkins
 RUN mkdir -p /var/lib/jenkins/workspace && \
     mkdir -p /home/jenkins && \
     chmod 777 /home/jenkins && \
     chmod 777 /var/lib/jenkins/workspace && \
     chmod -R 775 $ANDROID_HOME
-    
-# Create new (Jenkins Users)
-ARG USER_ID
-ARG GROUP_ID
-
-RUN adduser --disabled-password --gecos '' --uid $USER_ID --gid $GROUP_ID jenkins
-RUN addgroup --gid $GROUP_ID jenkins
-USER jenkins
 
 COPY Gemfile /Gemfile
 
