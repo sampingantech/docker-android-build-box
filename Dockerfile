@@ -181,7 +181,6 @@ RUN echo "Fastlane" && \
     rm -irf ~/.rvn ~/.gem && \
     gem install bundler --quiet --no-document > /dev/null && \
     mkdir -p /.fastlane && \
-    bundle install && \
     chmod 777 /.fastlane && \
     bundle install --quiet
 
