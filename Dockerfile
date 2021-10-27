@@ -167,6 +167,7 @@ COPY Gemfile /Gemfile
 # Required to distinguish host GEM_* env var
 ENV GEM_PATH /usr/local/bundle
 ENV GEM_HOME /usr/local/bundle
+ENV BUNDLE_PATH /usr/local/bundle
 RUN mkdir -p /usr/local/bundle
 ENV PATH $GEM_HOME/bin:$GEM_HOME/gems/bin:$PATH
 
