@@ -168,6 +168,7 @@ COPY Gemfile /Gemfile
 ENV GEM_PATH /usr/local/bundle
 ENV GEM_HOME /usr/local/bundle
 RUN mkdir -p /usr/local/bundle
+ENV PATH $GEM_HOME/bin:$GEM_HOME/gems/bin:$PATH
 
 RUN echo "fastlane" && \
     cd / && \
