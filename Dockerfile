@@ -329,6 +329,11 @@ RUN TEMP=$(curl -s https://api.github.com/repos/google/bundletool/releases/lates
     TAG_NAME=$(echo "$TEMP" | grep "tag_name" | cut -d : -f 2,3 | tr -d \"\ ,) && \
     echo "BUNDLETOOL_VERSION=$TAG_NAME" >> ${INSTALLED_TEMP}
 
+RUN echo "kotlin & gradle" && \
+    wget --quiet -O sdk.install.sh "https://get.sdkman.io" && \
+    bash -c "bash ./sdk.install.sh > /dev/null && source ~/.sdkman/bin/sdkman-init.sh && sdk install kotlin && sdk install gradle" && \
+    rm -f sdk.install.sh
+
 FROM bundletool-${BUNDLETOOL_TAGGED} as bundletool-final
 RUN echo "bundletool finished"
 
