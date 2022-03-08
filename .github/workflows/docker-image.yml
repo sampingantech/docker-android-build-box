@@ -179,30 +179,30 @@ jobs:
       id: login-ecr
       uses: aws-actions/amazon-ecr-login@v1
 
-    - name: Build, tag, and push image to Amazon ECR
-      if: github.event_name != 'pull_request' && (github.ref == 'refs/heads/main' || contains(github.ref, 'refs/tags/'))
-      env:
-        ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-        ECR_REPOSITORY: android
-        IMAGE_TAG: latest
-      run: |
-        docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
-        docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+    # - name: Build, tag, and push image to Amazon ECR
+    #   if: github.event_name != 'pull_request' && (github.ref == 'refs/heads/main' || contains(github.ref, 'refs/tags/'))
+    #   env:
+    #     ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+    #     ECR_REPOSITORY: android
+    #     IMAGE_TAG: android:latest
+    #   run: |
+    #     docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
+    #     docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
 
-    # - name: Build and push
-    #   uses: docker/build-push-action@v2
-    #   with:
-    #     context: .
-    #     # Android SDK not support arm64 yet
-    #     # platforms: linux/amd64,linux/arm64
-    #     platforms: linux/amd64
-    #     # platforms: linux/arm64
-    #     # push: ${{ github.event_name != 'pull_request' && github.ref == 'refs/heads/main' }}
-    #     push: ${{ github.event_name != 'pull_request' && (github.ref == 'refs/heads/main' || contains(github.ref, 'refs/tags/')) }}
-    #     tags: sampingan/android:latest,${{ steps.meta.outputs.tags }}
-    #     labels: ${{ steps.meta.outputs.labels }}
+    - name: Build and push
+      uses: docker/build-push-action@v2
+      with:
+        context: .
+        # Android SDK not support arm64 yet
+        # platforms: linux/amd64,linux/arm64
+        platforms: linux/amd64
+        # platforms: linux/arm64
+        # push: ${{ github.event_name != 'pull_request' && github.ref == 'refs/heads/main' }}
+        push: ${{ github.event_name != 'pull_request' && (github.ref == 'refs/heads/main' || contains(github.ref, 'refs/tags/')) }}
+        tags: public.ecr.aws/r4f2m1l8/android:latest,${{ steps.meta.outputs.tags }}
+        labels: ${{ steps.meta.outputs.labels }}
 
-    - name: Build and push - for Not PRs and Not Tags
+- name: Build and push - for Not PRs and Not Tags
       uses: docker/build-push-action@2cdde995de11925a030ce8070c3d77a52ffcf1c0
       if: github.event_name != 'pull_request' && !startsWith(github.ref, 'refs/tags/')
       with:
