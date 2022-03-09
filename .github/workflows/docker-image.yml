@@ -28,6 +28,9 @@ jobs:
     runs-on: ubuntu-latest
     env:
       IMAGE_NAME: public.ecr.aws/r4f2m1l8/android
+      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      AWS_DEFAULT_REGION: us-east-1 
 
     steps:
     - uses: actions/checkout@v2
@@ -114,6 +117,19 @@ jobs:
         TAG=$GITHUB_SHA
         docker rmi $IMAGE_NAME:$TAG
 
+    - id: install-aws-cli
+      uses: unfor19/install-aws-cli-action@v1
+      with:
+        version: 2     # default
+        verbose: false # default
+        arch: amd64    # allowed values: amd64, arm64
+      run: |
+        aws ecr-public get-login-password --region us-east-1 | docker login --username AWS --password-stdin public.ecr.aws
+        docker build -t $IMAGE_NAME:$GITHUB_SHA .
+        docker push $IMAGE_NAME:$GITHUB_SHA
+        docker tag $IMAGE_NAME:$GITHUB_SHA $IMAGE_NAME:latest
+        docker push $IMAGE_NAME:latest 
+
     # - name: Login to DockerHub
     #   # if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
     #   if: github.event_name != 'pull_request' && (github.ref == 'refs/heads/main' || contains(github.ref, 'refs/tags/'))
@@ -121,38 +137,38 @@ jobs:
     #   with:
     #     username: ${{ secrets.DOCKERHUB_USERNAME }}
     #     password: ${{ secrets.DOCKERHUB_TOKEN }}
-    - name: Configure AWS credentials
-      uses: aws-actions/configure-aws-credentials@v1
-      if: github.event_name != 'pull_request' && (github.ref == 'refs/heads/main' || contains(github.ref, 'refs/tags/'))
-      with:
-        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-        aws-region: us-east-1
+    # - name: Configure AWS credentials
+    #   uses: aws-actions/configure-aws-credentials@v1
+    #   if: github.event_name != 'pull_request' && (github.ref == 'refs/heads/main' || contains(github.ref, 'refs/tags/'))
+    #   with:
+    #     aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+    #     aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+    #     aws-region: us-east-1
 
-    - name: Login to Amazon ECR
-      if: github.event_name != 'pull_request' && (github.ref == 'refs/heads/main' || contains(github.ref, 'refs/tags/'))
-      id: login-ecr
-      uses: aws-actions/amazon-ecr-login@v1
+    # - name: Login to Amazon ECR
+    #   if: github.event_name != 'pull_request' && (github.ref == 'refs/heads/main' || contains(github.ref, 'refs/tags/'))
+    #   id: login-ecr
+    #   uses: aws-actions/amazon-ecr-login@v1
 
     # - name: Build, tag, and push image to Amazon ECR
     #   if: github.event_name != 'pull_request' && (github.ref == 'refs/heads/main' || contains(github.ref, 'refs/tags/'))
     #   env:
     #     ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
     #     ECR_REPOSITORY: android
-    #     IMAGE_TAG: android:latest
+    #     IMAGE_TAG: latest
     #   run: |
     #     docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
     #     docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
 
-    - name: Build and push
-      uses: docker/build-push-action@v2
-      with:
-        context: .
-        # Android SDK not support arm64 yet
-        # platforms: linux/amd64,linux/arm64
-        platforms: linux/amd64
-        # platforms: linux/arm64
-        # push: ${{ github.event_name != 'pull_request' && github.ref == 'refs/heads/main' }}
-        push: ${{ github.event_name != 'pull_request' && (github.ref == 'refs/heads/main' || contains(github.ref, 'refs/tags/')) }}
-        tags: public.ecr.aws/r4f2m1l8/android:latest,${{ steps.meta.outputs.tags }}
-        labels: ${{ steps.meta.outputs.labels }}
+    # - name: Build and push
+    #   uses: docker/build-push-action@v2
+    #   with:
+    #     context: .
+    #     # Android SDK not support arm64 yet
+    #     # platforms: linux/amd64,linux/arm64
+    #     platforms: linux/amd64
+    #     # platforms: linux/arm64
+    #     # push: ${{ github.event_name != 'pull_request' && github.ref == 'refs/heads/main' }}
+    #     push: ${{ github.event_name != 'pull_request' && (github.ref == 'refs/heads/main' || contains(github.ref, 'refs/tags/')) }}
+    #     tags: public.ecr.aws/r4f2m1l8/android:latest,${{ steps.meta.outputs.tags }}
+    #     labels: ${{ steps.meta.outputs.labels }}
