@@ -487,6 +487,13 @@ RUN chmod 775 -R $ANDROID_HOME && \
     rm -rf ${DIRWORK}/* && \
     echo "Android SDKs, Build tools, etc Installed: " >> ${INSTALLED_VERSIONS} && \
     . /etc/jdk.env && \
+    java -version && \
+    jenv add /usr/lib/jvm/java-8-openjdk-$JDK_PLATFORM && \
+    jenv add /usr/lib/jvm/java-11-openjdk-$JDK_PLATFORM && \
+    jenv add /usr/lib/jvm/java-17-openjdk-$JDK_PLATFORM && \
+    jenv versions && \
+    jenv global 17 && \
+    java -version && \
     ${ANDROID_SDK_MANAGER} --list_installed | tail --lines=+2 >> ${INSTALLED_VERSIONS}
 
 WORKDIR ${FINAL_DIRWORK}
